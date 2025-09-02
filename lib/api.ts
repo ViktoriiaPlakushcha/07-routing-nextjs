@@ -21,14 +21,23 @@ interface FetchNoteByIdProps {
 }
 
 
-async function fetchNotes({ query, currentPage, tag}: FetchNotesProps): Promise<FetchNotesResponse> {
+async function fetchNotes({ query, currentPage, tag }: FetchNotesProps): Promise<FetchNotesResponse> {
+    const params: {
+    search?: string;
+    tag?: NoteTag;
+    page: number;
+    perPage: number;
+  } = {
+    page: currentPage,
+    perPage: 12,
+    };
+    
+    if (query && query.trim()) params.search = query.trim();
+    if (tag) params.tag = tag;
+
+
     const response = await axios.get<FetchNotesResponse>('https://notehub-public.goit.study/api/notes', {
-        params: {
-            search: query,
-            tag: tag,
-            page: currentPage,
-            perPage: 12,
-        },
+        params,
         headers: {
             Authorization: `Bearer ${myKey}`
         }

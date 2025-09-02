@@ -9,17 +9,33 @@ import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
 import Modal from "@/components/Modal/Modal";
 import NoteForm from "@/components/NoteForm/NoteForm";
+import { NoteTag } from "@/types/note";
 
-function NotesClient() {
+interface NotesClientProps {
+  tag?: NoteTag;
+}
+
+function NotesClient({ tag }: NotesClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isError } = useQuery({
-    queryKey: ["notes", searchQuery, currentPage],
-    queryFn: () => fetchNotes({ query: searchQuery, currentPage }),
+    queryKey: ["notes", searchQuery, tag ?? null, currentPage],
+    queryFn: () => fetchNotes({ query: searchQuery, tag, currentPage }),
     placeholderData: keepPreviousData,
   });
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tag]);
+  useEffect(() => {
+    if (data?.totalPages && currentPage > data.totalPages) {
+      setCurrentPage(Math.max(1, data.totalPages));
+    }
+  }, [data?.totalPages, currentPage]);
+  useEffect(() => {
+    setSearchQuery("");
+  }, [tag]);
 
   useEffect(() => {
     if (searchQuery.length > 0 && data?.notes.length === 0) {
