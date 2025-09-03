@@ -18,7 +18,7 @@ export default function TagsMenu() {
       </button>
       {isOpen && (
         <ul className={css.menuList}>
-          <li className={css.menuItem}>
+          <li className={css.menuItem} onClick={handleToggle}>
             <Link
               href={`/notes/filter/All`}
               onClick={handleToggle}
@@ -29,7 +29,11 @@ export default function TagsMenu() {
           </li>
           {tags.map((tag) => (
             <li key={tag} className={css.menuItem} onClick={handleToggle}>
-              <Link href={`/notes/filter/${tag}`} className={css.menuLink}>
+              <Link
+                href={`/notes/filter/${tag}`}
+                className={css.menuLink}
+                onClick={handleToggle}
+              >
                 {tag}
               </Link>
             </li>

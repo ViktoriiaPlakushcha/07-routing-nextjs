@@ -2,19 +2,36 @@
 import css from "./NotePreview.module.css";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/Modal/Modal";
-import { type Note } from "@/types/note";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { fetchNoteById } from "@/lib/api";
+import { useEffect } from "react";
 
-type Props = {
-  note: Note;
-};
-const NotePreviewClient = ({ note }: Props) => {
-  document.body.style.overflow = "hidden";
+const NotePreviewClient = () => {
+  const { id } = useParams<{ id: string }>();
+  const {
+    data: note,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["note", id],
+    queryFn: () => fetchNoteById({ id }),
+    refetchOnMount: false,
+  });
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
   const router = useRouter();
   const close = () => {
     router.back();
-    document.body.style.overflow = "";
   };
-
+  if (isLoading) return <p className={css.loader}>Loading, please wait...</p>;
+  if (error || !note) return <p className={css.error}>Something went wrong.</p>;
   return (
     <Modal onClose={close}>
       <div className={css.container}>
